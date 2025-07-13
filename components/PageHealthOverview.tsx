@@ -189,7 +189,11 @@ export default function PageHealthOverview({ siteId }: PageHealthOverviewProps) 
       {/* Weekly Summary */}
       {weeklyTrend.length > 0 && (
         <div className="border-t border-gray-700 pt-4">
-          <h4 className="text-sm font-medium text-gray-300 mb-3">7-Day Summary</h4>
+          <h4 className="text-sm font-medium text-gray-300 mb-3">
+            {weeklyTrend.length === 7 ? '7-Day Summary' : 
+             weeklyTrend.length === 1 ? 'Today Only' :
+             `${weeklyTrend.length}-Day Summary`}
+          </h4>
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-lg font-mono text-green-400">
