@@ -47,11 +47,13 @@ export async function GET(
     
     // Get recent performance to check for actual crawler activity
     const perfHistory = await getPerformanceHistory();
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentPerf = await perfHistory.find({ 
-      site_id: siteId 
+      site_id: siteId,
+      timestamp: { $gte: oneDayAgo }  // Only use last 24 hours for relevance
     })
     .sort({ timestamp: -1 })
-    .limit(20)
+    .limit(100)  // Increased sample size for better accuracy
     .toArray();
     
     // Check for actual recent activity within 5 minutes
@@ -80,8 +82,7 @@ export async function GET(
       );
       
       // Calculate time differences between consecutive URLs
-      let totalTimeBetweenUrls = 0;
-      let validIntervals = 0;
+      const validIntervals: number[] = [];
       
       for (let i = 1; i < sortedPerf.length; i++) {
         const currentTime = new Date(sortedPerf[i].timestamp).getTime();
@@ -90,14 +91,32 @@ export async function GET(
         
         // Only count reasonable intervals (between 10 seconds and 10 minutes)
         if (timeDiffSeconds >= 10 && timeDiffSeconds <= 600) {
-          totalTimeBetweenUrls += timeDiffSeconds;
-          validIntervals++;
+          validIntervals.push(timeDiffSeconds);
         }
       }
       
-      // Calculate average time between URLs and real speed
-      avgTimeBetweenUrls = validIntervals > 0 ? totalTimeBetweenUrls / validIntervals : 0;
-      currentSpeed = avgTimeBetweenUrls > 0 ? Math.round(3600 / avgTimeBetweenUrls) : 0;
+      if (validIntervals.length > 0) {
+        // Use median instead of mean to reduce outlier impact
+        validIntervals.sort((a, b) => a - b);
+        const medianIndex = Math.floor(validIntervals.length / 2);
+        avgTimeBetweenUrls = validIntervals.length % 2 === 0
+          ? (validIntervals[medianIndex - 1] + validIntervals[medianIndex]) / 2
+          : validIntervals[medianIndex];
+          
+        // Apply trend weighting: give 70% weight to recent half, 30% to older half
+        if (validIntervals.length >= 4) {
+          const halfPoint = Math.floor(validIntervals.length / 2);
+          const recentHalf = validIntervals.slice(halfPoint);
+          const olderHalf = validIntervals.slice(0, halfPoint);
+          
+          const recentMedian = recentHalf[Math.floor(recentHalf.length / 2)];
+          const olderMedian = olderHalf[Math.floor(olderHalf.length / 2)];
+          
+          avgTimeBetweenUrls = (recentMedian * 0.7) + (olderMedian * 0.3);
+        }
+        
+        currentSpeed = Math.round(3600 / avgTimeBetweenUrls);
+      }
     } else if (recentPerf.length === 1) {
       // Fallback for single record: estimate based on processing time + typical delay
       const crawlTime = recentPerf[0].crawl_time || 30;
