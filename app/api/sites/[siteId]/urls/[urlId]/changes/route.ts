@@ -2,6 +2,41 @@ import { NextResponse } from 'next/server';
 import { getPageChanges, getUrlStates } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
+// Helper function to generate Drive URLs for any visited page
+function generateDriveUrls(url: string) {
+  // Generate safe filename like the crawler does
+  const crypto = require('crypto');
+  const urlParsed = new URL(url);
+  
+  let pathPart = urlParsed.pathname.replace(/\//g, '_').replace(/^_+|_+$/g, '');
+  const queryPart = urlParsed.search ? urlParsed.search.substring(1).replace(/&/g, '_').replace(/=/g, '-') : '';
+  
+  // Create base filename
+  let baseName;
+  if (pathPart) {
+    baseName = `${urlParsed.hostname}_${pathPart}`;
+  } else {
+    baseName = `${urlParsed.hostname}_index`;
+  }
+  
+  if (queryPart) {
+    baseName += `_${queryPart}`;
+  }
+  
+  // Add URL hash for uniqueness
+  const urlHash = crypto.createHash('md5').update(url).digest('hex').substring(0, 8);
+  const safeFilename = `${baseName}_${urlHash}`.substring(0, 100);
+  
+  // Generate Google Drive search URLs (these will open Drive search for the folder)
+  const screenshotSearchUrl = `https://drive.google.com/drive/search?q="${safeFilename}" type:folder`;
+  const htmlSearchUrl = `https://drive.google.com/drive/search?q="${safeFilename}" type:folder`;
+  
+  return {
+    screenshot_url: screenshotSearchUrl,
+    html_url: htmlSearchUrl
+  };
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ siteId: string; urlId: string }> }
@@ -39,10 +74,15 @@ export async function GET(
       summary: change.change_details?.change_summary || 'Page content changed'
     }));
     
+    // Generate Drive URLs for this page (works for all visited pages)
+    const driveUrls = generateDriveUrls(urlDoc.url);
+    
     return NextResponse.json({
       url: urlDoc.url,
       changes: formattedChanges,
-      totalChanges: changes.length
+      totalChanges: changes.length,
+      // Always include Drive URLs for visited pages
+      driveUrls: driveUrls
     });
   } catch (error) {
     console.error('Error fetching URL changes:', error);

@@ -48,7 +48,8 @@ export async function GET(
         );
         
         // Calculate time differences between consecutive URLs
-        const validIntervals: number[] = [];
+        let totalTimeBetweenUrls = 0;
+        let validIntervals = 0;
         
         for (let i = 1; i < sortedPerfs.length; i++) {
           const currentTime = new Date(sortedPerfs[i].timestamp).getTime();
@@ -57,20 +58,14 @@ export async function GET(
           
           // Only count reasonable intervals (between 10 seconds and 10 minutes)
           if (timeDiffSeconds >= 10 && timeDiffSeconds <= 600) {
-            validIntervals.push(timeDiffSeconds);
+            totalTimeBetweenUrls += timeDiffSeconds;
+            validIntervals++;
           }
         }
         
-        if (validIntervals.length > 0) {
-          // Use median instead of mean to reduce outlier impact
-          validIntervals.sort((a, b) => a - b);
-          const medianIndex = Math.floor(validIntervals.length / 2);
-          const avgTimeBetweenUrls = validIntervals.length % 2 === 0
-            ? (validIntervals[medianIndex - 1] + validIntervals[medianIndex]) / 2
-            : validIntervals[medianIndex];
-          
-          avgSpeed = Math.round(3600 / avgTimeBetweenUrls);
-        }
+        // Calculate average time between URLs and real speed
+        const avgTimeBetweenUrls = validIntervals > 0 ? totalTimeBetweenUrls / validIntervals : 0;
+        avgSpeed = avgTimeBetweenUrls > 0 ? Math.round(3600 / avgTimeBetweenUrls) : 0;
       } else if (perfs.length === 1) {
         // Fallback for single record: estimate based on processing time + typical delay
         const crawlTime = perfs[0].crawl_time || 30;
