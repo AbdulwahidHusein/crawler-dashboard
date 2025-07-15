@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import { getPageChanges, getUrlStates } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
+import crypto from 'crypto';
 
 // Helper function to generate Drive URLs for any visited page
 function generateDriveUrls(url: string) {
   // Generate safe filename like the crawler does
-  const crypto = require('crypto');
   const urlParsed = new URL(url);
   
   let pathPart = urlParsed.pathname.replace(/\//g, '_').replace(/^_+|_+$/g, '');
