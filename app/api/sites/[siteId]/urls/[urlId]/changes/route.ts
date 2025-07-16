@@ -44,11 +44,14 @@ export async function GET(
   try {
     const { siteId, urlId } = await params;
     
+    // Convert site ID format (dashboard uses hyphens, database uses underscores)
+    const dbSiteId = siteId.replace(/-/g, '_');
+    
     // Get URL details first
     const urlStates = await getUrlStates();
     const urlDoc = await urlStates.findOne({ _id: new ObjectId(urlId) });
     
-    if (!urlDoc || urlDoc.site_id !== siteId) {
+    if (!urlDoc || urlDoc.site_id !== dbSiteId) {
       return NextResponse.json(
         { error: 'URL not found' },
         { status: 404 }
@@ -58,7 +61,7 @@ export async function GET(
     // Get change history for this URL
     const pageChanges = await getPageChanges();
     const changes = await pageChanges.find({
-      site_id: siteId,
+      site_id: dbSiteId,
       url: urlDoc.url
     })
     .sort({ timestamp: -1 })

@@ -64,26 +64,32 @@ export async function getPageChanges(): Promise<Collection> {
 
 // Helper function to get all available sites
 export async function getAllSites() {
+  // ONLY USE site_states collection - the authoritative source for active sites
   const siteStates = await getSiteStates();
-  const sites = await siteStates.find({}, { 
-    projection: { 
-      site_id: 1, 
-      total_pages_estimate: 1, 
-      current_cycle: 1, 
-      is_first_cycle: 1,
-      cycle_start_time: 1,
-      updated_at: 1 
-    } 
-  }).toArray();
+  const activeSites = await siteStates.find({}).toArray();
   
-  return sites.map(site => ({
-    siteId: site.site_id,
-    totalPages: site.total_pages_estimate || 0,
-    currentCycle: site.current_cycle || 1,
-    isFirstCycle: site.is_first_cycle || true,
-    cycleStartTime: site.cycle_start_time,
-    lastUpdated: site.updated_at
-  }));
+  // Get URL counts for each active site
+  const urlStates = await getUrlStates();
+  const sites = [];
+  
+  for (const siteState of activeSites) {
+    // Convert database format (underscores) to dashboard format (hyphens)
+    const dashboardSiteId = siteState.site_id.replace(/_/g, '-');
+    
+    // Get real page count for this site
+    const totalPages = await urlStates.countDocuments({ site_id: siteState.site_id });
+    
+    sites.push({
+      siteId: dashboardSiteId, // Dashboard format
+      totalPages: totalPages, // Real count from url_states
+      currentCycle: siteState.current_cycle || 1,
+      isFirstCycle: siteState.is_first_cycle !== false,
+      cycleStartTime: siteState.cycle_start_time,
+      lastUpdated: siteState.updated_at
+    });
+  }
+  
+  return sites.sort((a, b) => b.totalPages - a.totalPages);
 }
 
 export default clientPromise; 

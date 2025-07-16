@@ -545,198 +545,198 @@ export default function URLBrowser({ siteId }: URLBrowserProps) {
                   
                   {/* Changes Section */}
                   {changes.length === 0 ? (
-                    <div className="text-center py-8">
+                <div className="text-center py-8">
                       <div className="text-gray-400">No changes detected</div>
-                      <div className="text-sm text-gray-500 mt-2">
+                  <div className="text-sm text-gray-500 mt-2">
                         This page has been crawled but no content changes have been detected yet.
-                      </div>
-                    </div>
-                  ) : (
+                  </div>
+                </div>
+              ) : (
                     <>
                       <h4 className="text-sm font-medium text-gray-300 mb-4">📝 Change History</h4>
-                      <div className="space-y-4">
-                        {changes.map((change, index) => (
-                          <div key={change.id} className="bg-gray-900 rounded-lg p-4 border border-gray-600">
-                            {/* Change Header */}
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-2">
-                                <Edit className="w-4 h-4 text-blue-400" />
-                                <span className="text-sm font-medium text-white">
-                                  Change #{changes.length - index}
-                                </span>
-                              </div>
-                              <span className="text-xs text-gray-400">
-                                {formatDate(change.timestamp)}
-                              </span>
-                            </div>
-
-                            {/* Change Summary */}
-                            <div className="mb-3">
-                              <p className="text-sm text-gray-300">{change.summary}</p>
-                            </div>
-
-                            {/* Detailed Changes */}
-                            {change.changeDetails && (
-                              <div className="space-y-3">
-                                {/* Added Text */}
-                                {change.changeDetails.added_text?.length > 0 && (
-                                  <div className="bg-green-900/20 border border-green-700 rounded p-3">
-                                    <h4 className="text-sm font-medium text-green-400 mb-2">
-                                      ✅ Added Text ({change.changeDetails.added_text.length})
-                                    </h4>
-                                    <div className="space-y-1">
-                                      {change.changeDetails.added_text.slice(0, 3).map((item: any, i: number) => (
-                                        <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-2 rounded">
-                                          + {item.text}
-                                        </p>
-                                      ))}
-                                      {change.changeDetails.added_text.length > 3 && (
-                                        <p className="text-xs text-gray-400">
-                                          ... and {change.changeDetails.added_text.length - 3} more
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Deleted Text */}
-                                {change.changeDetails.deleted_text?.length > 0 && (
-                                  <div className="bg-red-900/20 border border-red-700 rounded p-3">
-                                    <h4 className="text-sm font-medium text-red-400 mb-2">
-                                      ❌ Removed Text ({change.changeDetails.deleted_text.length})
-                                    </h4>
-                                    <div className="space-y-1">
-                                      {change.changeDetails.deleted_text.slice(0, 3).map((item: any, i: number) => (
-                                        <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-2 rounded">
-                                          - {item.text}
-                                        </p>
-                                      ))}
-                                      {change.changeDetails.deleted_text.length > 3 && (
-                                        <p className="text-xs text-gray-400">
-                                          ... and {change.changeDetails.deleted_text.length - 3} more
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Changed Text */}
-                                {change.changeDetails.changed_text?.length > 0 && (
-                                  <div className="bg-yellow-900/20 border border-yellow-700 rounded p-3">
-                                    <h4 className="text-sm font-medium text-yellow-400 mb-2">
-                                      🔄 Modified Text ({change.changeDetails.changed_text.length})
-                                    </h4>
-                                    <div className="space-y-1">
-                                      {change.changeDetails.changed_text.slice(0, 3).map((item: any, i: number) => (
-                                        <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-2 rounded">
-                                          ~ {item.text}
-                                        </p>
-                                      ))}
-                                      {change.changeDetails.changed_text.length > 3 && (
-                                        <p className="text-xs text-gray-400">
-                                          ... and {change.changeDetails.changed_text.length - 3} more
-                                        </p>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Link Changes */}
-                                {(change.changeDetails.added_links?.length > 0 || change.changeDetails.removed_links?.length > 0) && (
-                                  <div className="bg-blue-900/20 border border-blue-700 rounded p-3">
-                                    <h4 className="text-sm font-medium text-blue-400 mb-2">🔗 Link Changes</h4>
-                                    <div className="space-y-2">
-                                      {change.changeDetails.added_links?.length > 0 && (
-                                        <div>
-                                          <p className="text-xs text-green-400 mb-1">Added ({change.changeDetails.added_links.length}):</p>
-                                          {change.changeDetails.added_links.slice(0, 3).map((link: string, i: number) => (
-                                            <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
-                                              + {link}
-                                            </p>
-                                          ))}
-                                          {change.changeDetails.added_links.length > 3 && (
-                                            <p className="text-xs text-gray-400">... and {change.changeDetails.added_links.length - 3} more</p>
-                                          )}
-                                        </div>
-                                      )}
-                                      {change.changeDetails.removed_links?.length > 0 && (
-                                        <div>
-                                          <p className="text-xs text-red-400 mb-1">Removed ({change.changeDetails.removed_links.length}):</p>
-                                          {change.changeDetails.removed_links.slice(0, 3).map((link: string, i: number) => (
-                                            <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
-                                              - {link}
-                                            </p>
-                                          ))}
-                                          {change.changeDetails.removed_links.length > 3 && (
-                                            <p className="text-xs text-gray-400">... and {change.changeDetails.removed_links.length - 3} more</p>
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* PDF Changes */}
-                                {(change.changeDetails.added_pdfs?.length > 0 || change.changeDetails.removed_pdfs?.length > 0) && (
-                                  <div className="bg-purple-900/20 border border-purple-700 rounded p-3">
-                                    <h4 className="text-sm font-medium text-purple-400 mb-2">📄 PDF Changes</h4>
-                                    <div className="space-y-2">
-                                      {change.changeDetails.added_pdfs?.length > 0 && (
-                                        <div>
-                                          <p className="text-xs text-green-400 mb-1">Added ({change.changeDetails.added_pdfs.length}):</p>
-                                          {change.changeDetails.added_pdfs.map((pdf: string, i: number) => (
-                                            <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
-                                              + {pdf}
-                                            </p>
-                                          ))}
-                                        </div>
-                                      )}
-                                      {change.changeDetails.removed_pdfs?.length > 0 && (
-                                        <div>
-                                          <p className="text-xs text-red-400 mb-1">Removed ({change.changeDetails.removed_pdfs.length}):</p>
-                                          {change.changeDetails.removed_pdfs.map((pdf: string, i: number) => (
-                                            <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
-                                              - {pdf}
-                                            </p>
-                                          ))}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* Drive Links */}
-                                {(change.changeDetails.screenshot_url || change.changeDetails.html_url) && (
-                                  <div className="flex items-center gap-4 pt-2 border-t border-gray-600">
-                                    {change.changeDetails.screenshot_url && (
-                                      <a
-                                        href={change.changeDetails.screenshot_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
-                                      >
-                                        <ExternalLink className="w-3 h-3" />
-                                        Screenshots
-                                      </a>
-                                    )}
-                                    {change.changeDetails.html_url && (
-                                      <a
-                                        href={change.changeDetails.html_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
-                                      >
-                                        <ExternalLink className="w-3 h-3" />
-                                        HTML Files
-                                      </a>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                <div className="space-y-4">
+                  {changes.map((change, index) => (
+                    <div key={change.id} className="bg-gray-900 rounded-lg p-4 border border-gray-600">
+                      {/* Change Header */}
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Edit className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm font-medium text-white">
+                            Change #{changes.length - index}
+                          </span>
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {formatDate(change.timestamp)}
+                        </span>
                       </div>
+
+                      {/* Change Summary */}
+                      <div className="mb-3">
+                        <p className="text-sm text-gray-300">{change.summary}</p>
+                      </div>
+
+                      {/* Detailed Changes */}
+                      {change.changeDetails && (
+                        <div className="space-y-3">
+                          {/* Added Text */}
+                          {change.changeDetails.added_text?.length > 0 && (
+                            <div className="bg-green-900/20 border border-green-700 rounded p-3">
+                              <h4 className="text-sm font-medium text-green-400 mb-2">
+                                ✅ Added Text ({change.changeDetails.added_text.length})
+                              </h4>
+                              <div className="space-y-1">
+                                {change.changeDetails.added_text.slice(0, 3).map((item: any, i: number) => (
+                                  <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-2 rounded">
+                                    + {item.text}
+                                  </p>
+                                ))}
+                                {change.changeDetails.added_text.length > 3 && (
+                                  <p className="text-xs text-gray-400">
+                                    ... and {change.changeDetails.added_text.length - 3} more
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Deleted Text */}
+                          {change.changeDetails.deleted_text?.length > 0 && (
+                            <div className="bg-red-900/20 border border-red-700 rounded p-3">
+                              <h4 className="text-sm font-medium text-red-400 mb-2">
+                                ❌ Removed Text ({change.changeDetails.deleted_text.length})
+                              </h4>
+                              <div className="space-y-1">
+                                {change.changeDetails.deleted_text.slice(0, 3).map((item: any, i: number) => (
+                                  <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-2 rounded">
+                                    - {item.text}
+                                  </p>
+                                ))}
+                                {change.changeDetails.deleted_text.length > 3 && (
+                                  <p className="text-xs text-gray-400">
+                                    ... and {change.changeDetails.deleted_text.length - 3} more
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Changed Text */}
+                          {change.changeDetails.changed_text?.length > 0 && (
+                            <div className="bg-yellow-900/20 border border-yellow-700 rounded p-3">
+                              <h4 className="text-sm font-medium text-yellow-400 mb-2">
+                                🔄 Modified Text ({change.changeDetails.changed_text.length})
+                              </h4>
+                              <div className="space-y-1">
+                                {change.changeDetails.changed_text.slice(0, 3).map((item: any, i: number) => (
+                                  <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-2 rounded">
+                                    ~ {item.text}
+                                  </p>
+                                ))}
+                                {change.changeDetails.changed_text.length > 3 && (
+                                  <p className="text-xs text-gray-400">
+                                    ... and {change.changeDetails.changed_text.length - 3} more
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Link Changes */}
+                          {(change.changeDetails.added_links?.length > 0 || change.changeDetails.removed_links?.length > 0) && (
+                            <div className="bg-blue-900/20 border border-blue-700 rounded p-3">
+                              <h4 className="text-sm font-medium text-blue-400 mb-2">🔗 Link Changes</h4>
+                              <div className="space-y-2">
+                                {change.changeDetails.added_links?.length > 0 && (
+                                  <div>
+                                    <p className="text-xs text-green-400 mb-1">Added ({change.changeDetails.added_links.length}):</p>
+                                    {change.changeDetails.added_links.slice(0, 3).map((link: string, i: number) => (
+                                      <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
+                                        + {link}
+                                      </p>
+                                    ))}
+                                    {change.changeDetails.added_links.length > 3 && (
+                                      <p className="text-xs text-gray-400">... and {change.changeDetails.added_links.length - 3} more</p>
+                                    )}
+                                  </div>
+                                )}
+                                {change.changeDetails.removed_links?.length > 0 && (
+                                  <div>
+                                    <p className="text-xs text-red-400 mb-1">Removed ({change.changeDetails.removed_links.length}):</p>
+                                    {change.changeDetails.removed_links.slice(0, 3).map((link: string, i: number) => (
+                                      <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
+                                        - {link}
+                                      </p>
+                                    ))}
+                                    {change.changeDetails.removed_links.length > 3 && (
+                                      <p className="text-xs text-gray-400">... and {change.changeDetails.removed_links.length - 3} more</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* PDF Changes */}
+                          {(change.changeDetails.added_pdfs?.length > 0 || change.changeDetails.removed_pdfs?.length > 0) && (
+                            <div className="bg-purple-900/20 border border-purple-700 rounded p-3">
+                              <h4 className="text-sm font-medium text-purple-400 mb-2">📄 PDF Changes</h4>
+                              <div className="space-y-2">
+                                {change.changeDetails.added_pdfs?.length > 0 && (
+                                  <div>
+                                    <p className="text-xs text-green-400 mb-1">Added ({change.changeDetails.added_pdfs.length}):</p>
+                                    {change.changeDetails.added_pdfs.map((pdf: string, i: number) => (
+                                      <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
+                                        + {pdf}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                                {change.changeDetails.removed_pdfs?.length > 0 && (
+                                  <div>
+                                    <p className="text-xs text-red-400 mb-1">Removed ({change.changeDetails.removed_pdfs.length}):</p>
+                                    {change.changeDetails.removed_pdfs.map((pdf: string, i: number) => (
+                                      <p key={i} className="text-xs text-gray-300 font-mono bg-gray-800 p-1 rounded">
+                                        - {pdf}
+                                      </p>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Drive Links */}
+                          {(change.changeDetails.screenshot_url || change.changeDetails.html_url) && (
+                            <div className="flex items-center gap-4 pt-2 border-t border-gray-600">
+                              {change.changeDetails.screenshot_url && (
+                                <a
+                                  href={change.changeDetails.screenshot_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  Screenshots
+                                </a>
+                              )}
+                              {change.changeDetails.html_url && (
+                                <a
+                                  href={change.changeDetails.html_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                                >
+                                  <ExternalLink className="w-3 h-3" />
+                                  HTML Files
+                                </a>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
                     </>
                   )}
                 </>
