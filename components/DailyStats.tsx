@@ -3,6 +3,20 @@
 import { useState, useEffect } from 'react';
 import { Calendar, TrendingUp, Activity, AlertTriangle } from 'lucide-react';
 
+// Helper function to format deleted pages breakdown
+function formatDeletedBreakdown(deletions: any): string {
+  if (!deletions || deletions.deleted_today === 0) return 'no deletions today';
+  
+  const parts = [];
+  if (deletions.deleted_pdfs > 0) parts.push(`${deletions.deleted_pdfs} PDFs`);
+  if (deletions.deleted_documents > 0) parts.push(`${deletions.deleted_documents} docs`);
+  if (deletions.deleted_webpages > 0) parts.push(`${deletions.deleted_webpages} pages`);
+  if (deletions.deleted_media > 0) parts.push(`${deletions.deleted_media} media`);
+  if (deletions.deleted_archives > 0) parts.push(`${deletions.deleted_archives} archives`);
+  
+  return parts.join(', ') || 'pages deleted';
+}
+
 interface DailyStatsData {
   timeframe: string;
   period: string;
@@ -30,6 +44,11 @@ interface DailyStatsData {
   };
   deletions: {
     deleted_today: number;
+    deleted_pdfs: number;
+    deleted_documents: number;
+    deleted_webpages: number;
+    deleted_media: number;
+    deleted_archives: number;
     description: string;
   };
   current_totals: {
@@ -178,7 +197,9 @@ export default function DailyStats({ siteId }: DailyStatsProps) {
           <div className="text-2xl font-mono text-red-400 mb-1">
             {(data.deletions?.deleted_today || 0).toLocaleString()}
           </div>
-          <div className="text-xs text-gray-500">pages deleted</div>
+          <div className="text-xs text-gray-500">
+            {formatDeletedBreakdown(data.deletions)}
+          </div>
         </div>
       </div>
 

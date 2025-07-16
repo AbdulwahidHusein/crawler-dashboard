@@ -1,6 +1,53 @@
 import { NextResponse } from 'next/server';
 import { getDatabase } from '@/lib/mongodb';
 
+// Helper function to categorize deleted pages by URL patterns
+function categorizeDeletedPages(deletedPages: any[]): {
+  total: number;
+  pdfs: number;
+  documents: number;
+  webpages: number;
+  media: number;
+  archives: number;
+} {
+  const breakdown = {
+    total: deletedPages.length,
+    pdfs: 0,
+    documents: 0,
+    webpages: 0,
+    media: 0,
+    archives: 0
+  };
+  
+  deletedPages.forEach(page => {
+    const url = page.url?.toLowerCase() || '';
+    
+    // PDF files
+    if (url.includes('.pdf') || url.includes('/pdf')) {
+      breakdown.pdfs++;
+    }
+    // Office documents
+    else if (url.match(/\.(doc|docx|xls|xlsx|ppt|pptx|txt|rtf)/i) || 
+             url.includes('/download') || url.includes('/files') || url.includes('/attachments')) {
+      breakdown.documents++;
+    }
+    // Media files
+    else if (url.match(/\.(jpg|jpeg|png|gif|bmp|svg|webp|mp4|avi|mov|mp3|wav)/i)) {
+      breakdown.media++;
+    }
+    // Archive files
+    else if (url.match(/\.(zip|rar|7z|tar|gz)/i)) {
+      breakdown.archives++;
+    }
+    // Default to webpage
+    else {
+      breakdown.webpages++;
+    }
+  });
+  
+  return breakdown;
+}
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ siteId: string }> }
@@ -99,15 +146,18 @@ export async function GET(
       }
     });
     
-    // 5. Get pages that were deleted in last 7 days (using performance_history for precise timing)
-    const deletedThisWeek = await db.collection('performance_history').countDocuments({
+    // 5. Get pages that were deleted in last 7 days with breakdown by type
+    const deletedDocsThisWeek = await db.collection('performance_history').find({
       site_id: dbSiteId,
       page_type: 'deleted',
       timestamp: {
         $gte: utc7DaysAgo,
         $lte: utcEndOfToday
       }
-    });
+    }).toArray();
+    
+    // Categorize deleted pages by URL patterns
+    const deletedBreakdown = categorizeDeletedPages(deletedDocsThisWeek);
     
     // 6. Get current status totals for context
     const [totalPages, visitedPages, remainingPages, failedPages, deletedPages] = await Promise.all([
@@ -131,7 +181,7 @@ export async function GET(
       crawled_per_day: Math.round(processingStats.pages_crawled / 7),
       changed_per_day: Math.round(changedThisWeek / 7),
       failed_per_day: Math.round(failedThisWeek / 7),
-      deleted_per_day: Math.round(deletedThisWeek / 7)
+      deleted_per_day: Math.round(deletedBreakdown.total / 7)
     };
     
     const response = {
@@ -164,9 +214,14 @@ export async function GET(
         description: 'Pages that failed to load in last 7 days UTC'
       },
       deletions: {
-        deleted_this_week: deletedThisWeek,
+        deleted_this_week: deletedBreakdown.total,
+        deleted_pdfs: deletedBreakdown.pdfs,
+        deleted_documents: deletedBreakdown.documents,
+        deleted_webpages: deletedBreakdown.webpages,
+        deleted_media: deletedBreakdown.media,
+        deleted_archives: deletedBreakdown.archives,
         daily_average: dailyAverages.deleted_per_day,
-        description: 'Pages detected as deleted in last 7 days UTC'
+        description: 'Pages detected as deleted in last 7 days UTC with breakdown by type'
       },
       daily_breakdown: dailyBreakdown,
       current_totals: {
